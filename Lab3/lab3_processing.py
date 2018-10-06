@@ -1,3 +1,4 @@
+import json, os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -117,8 +118,8 @@ def calc_riseFall_times(index_dict, time):
     # Get timesets then subtract...
         # top-bot for rise
         # bot-top for fall
-    rise_ts = [np.sum(time[r]*[1, -1]) for r in rise]
-    fall_ts = [np.sum(time[f]*[-1, 1]) for f in fall]
+    rise_ts = np.array([np.sum(time[r]*[1, -1]) for r in rise])
+    fall_ts = np.array([np.sum(time[f]*[-1, 1]) for f in fall])
 
     return rise_ts, fall_ts
     
@@ -127,7 +128,7 @@ def calc_prop_times(node, source, time):
         Function to calculate rise and fall propogation times
         
         INPUTS
-        :node: - current curve to evaluate agains input curve
+        :node: - current curve to evaluate against input curve
         :source: - input curve
         :time: - timescale to be referenced for time differences
         
@@ -137,18 +138,44 @@ def calc_prop_times(node, source, time):
     """
     rise_prop = []
     fall_prop = []
+    node1 = {}; node1.update(node)
+    source1 = {}; source1.update(source)
     
-    if node['fall_half'][0] < source['rise_half'][0]:
-        node['fall_half'][0][1:]
+    # Check that first half point on current node is for rising edge
+        # First point for input edge will always be on rise, so
+        # these calculations will only work out for current traces
+        # where the current node's first half point is on falling edge
+    nodePoints = list(node1['rise_half']) + list(node1['fall_half'])
+    
+    if not min(nodePoints) in node1['fall_half']:
+        return "[Cannot compute]", "[Cannot compute]", "[Cannot compute]"
         
-    for prop1, prop2 in [['rise_half', 'fall_half'],
-                         ['fall_half', 'rise_half']]:
-        if len(node[prop1]) > len(source[prop2]):
-            node[prop1] = node[prop1][:-1]
-        elif len(source[prop1]) > len(node[prop2]):
-            source[prop1] = source[prop1][:-1]
+    # First rise half of input curve (source) should be
+        # before the first fall half of current node
+        # If this is found to not be the case, remove first
+        # fall half of current node
+    if node1['fall_half'][0] < source1['rise_half'][0]:
+        node1['fall_half'] = node1['fall_half'][1:]
+        
+    # Get propogation delay for rising by iterating through current trace
+        # 50% points on rising edges. Current trace is used because this
+        # trace will always have as many or less points than the input
+        # trace so there won't be any index errors when indexing the
+        # input trace falling edge points
+    rise_prop_ts = []
+    for i, riseIndex in enumerate(node1['rise_half']):
+        rise_prop_ts.append(time[riseIndex] - source1['fall_half'][i])
+        
+    # Get propogation delay for falling with same but opposite methodology
+        # as used for rise prop.
+    fall_prop_ts = []
+    for i, fallIndex in enumerate(node1['fall_half']):
+        fall_prop_ts.append(time[fallIndex] - source1['rise_half'][i])
+        
+    # Get averate propogation delay
+    prop_ts = np.mean(list(rise_prop_ts) + list(fall_prop_ts))
     
-    
+    return np.array(rise_prop_ts), np.array(fall_prop_ts), prop_ts
     
 def arrays_to_strings(records):
     """
@@ -175,11 +202,27 @@ def arrays_to_strings(records):
             records[k] = str(records[k]).replace('\n', ',')
         else: # Just do regular conversion for all other data types
             records[k] = str(records[k]).replace('\n', ',')
-            """
-            try:
-                records[k] = str(list(records[k])).replace('\n', ',')
-            except:
-                records[k] = str(records[k])
-            """
                 
     return records
+    
+def load_record(filepath):
+    """
+        STATUS: NOT FINISHED
+        
+        Function to load data into original data types from records JSON output
+        
+        INPUT
+        :filepath: - Filepath to record file to load
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError('Input path %s does not exists' % filepath)
+        
+    data = json.load(open(filepath, 'r'))
+    for key1 in list(data):
+        for key2 in list(data[key1]):
+            try:
+                data[key1][key2] = np.fromstring(data[key1][key2], sep='')
+            except Exception as e:
+                print(type(e), e)
+                
+    print(data)

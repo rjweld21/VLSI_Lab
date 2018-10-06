@@ -1,0 +1,52 @@
+// Generated for: spectre
+// Generated on: Oct  3 09:07:03 2018
+// Design library name: tutorial
+// Design cell name: osc_inv1
+// Design view name: schematic
+simulator lang=spectre
+global 0 vdd!
+include "/home/shin/pdk/ncsu-cdk-1.6.0.beta/models/spectre/nom/ami06N.m"
+include "/home/shin/pdk/ncsu-cdk-1.6.0.beta/models/spectre/nom/ami06P.m"
+
+// Library name: tutorial
+// Cell name: inv1
+// View name: schematic
+subckt inv1 in out
+    N0 (out in 0 0) ami06N w=1.5u l=600n as=2.25e-12 ad=2.25e-12 ps=6u \
+        pd=6u m=1 region=sat
+    P0 (out in vdd! vdd!) ami06P w=1.5u l=600n as=2.25e-12 ad=2.25e-12 \
+        ps=6u pd=6u m=1 region=sat
+ends inv1
+// End of subcircuit definition.
+
+// Library name: tutorial
+// Cell name: osc_inv1
+// View name: schematic
+I10 (net6 net5) inv1
+I9 (net5 net9) inv1
+I8 (net4 net6) inv1
+I7 (net9 net8) inv1
+I6 (net8 net7) inv1
+I5 (net7 net2) inv1
+I4 (net2 net1) inv1
+I3 (net3 net4) inv1
+I2 (net10 net3) inv1
+I1 (net11 net10) inv1
+I0 (net1 net11) inv1
+include "./_graphical_stimuli.scs"
+ic net1=0 
+simulatorOptions options reltol=1e-3 vabstol=1e-6 iabstol=1e-12 temp=27 \
+    tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 rforce=1 maxnotes=5 maxwarns=5 \
+    digits=5 cols=80 pivrel=1e-3 sensfile="../psf/sens.output" \
+    checklimitdest=psf 
+tran tran stop=4n errpreset=moderate step=1e-13 maxstep=1e-13 \
+    write="spectre.ic" writefinal="spectre.fc" annotate=status maxiters=5 
+finalTimeOP info what=oppoint where=rawfile
+modelParameter info what=models where=rawfile
+element info what=inst where=rawfile
+outputParameter info what=output where=rawfile
+designParamVals info what=parameters where=rawfile
+primitives info what=primitives where=rawfile
+subckts info what=subckts where=rawfile
+save 
+saveOptions options save=allpub

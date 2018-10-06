@@ -18,14 +18,14 @@ def allPlots(df):
     """
         Function for plotting all output traces
     """
-    # Delete time column, custom scale to be created
-    del df[TIME_COL]
     
     # Create xrange for plots
     x = range(df.shape[0])
     
     # Scale through output trace columns and plot each one
     for net in list(df):
+        if net == TIME_COL:
+            continue
         # Get output trace series, convert to list
         points = df[net].tolist()
         # Put on plot
@@ -99,9 +99,14 @@ def riseFall_times(df, showPlot=1, saveJson=False):
         
         if INPUT_COL in records and not net == INPUT_COL:
             records[net]['initial_input'] = 'False, see %s' % INPUT_COL
-            rise_prop_ts, fall_prop_ts = lp.calc_prop_times(records[net], 
+            #print(records[INPUT_COL]['rise_half'], records[INPUT_COL]['fall_half'])
+            rise_prop_ts, fall_prop_ts, prop_ts = lp.calc_prop_times(records[net], 
                                                             records[INPUT_COL], 
                                                             time)
+                                                            
+            records[net]['rise_prop_ts'] = rise_prop_ts
+            records[net]['fall_prop_ts'] = fall_prop_ts
+            records[net]['prop_ts'] = prop_ts
             
         elif net == INPUT_COL:
             records[net]['initial_input'] = 'True'
@@ -109,9 +114,9 @@ def riseFall_times(df, showPlot=1, saveJson=False):
         else:
             raise Exception('No input recorded to reference, INPUT_COL ' + 
                             'must be same as first for loop iteration net')
-            
+
         # Skip any iterations where i%3!=0
-        if not i % 3 == 0:
+        if not i % 4 == 0:
             continue
             
         if showPlot:
@@ -125,15 +130,22 @@ def riseFall_times(df, showPlot=1, saveJson=False):
             #plt.plot(time[t_ind], points[t_ind], 'go') # Top intersections
             #plt.plot(time[b_ind], points[b_ind], 'bo') # Bottom intersections
             #plt.plot(time[h_ind], points[h_ind], 'ro') # Halfway intersetions
+            
             # 20% - 80% rising edges (black dots)
-            plt.plot(time[list(rise[:, 0])], points[list(rise[:, 0])], 'ko')
-            plt.plot(time[list(rise[:, 1])], points[list(rise[:, 1])], 'ko')
+            plt.plot(time[list(rise[:, 0])], points[list(rise[:, 0])], 'k*', markersize=13.0)
+            plt.plot(time[list(rise[:, 1])], points[list(rise[:, 1])], 'k*', markersize=13.0)
+            plt.plot(time[list(rise_half)], points[list(rise_half)], 'k*', markersize=13.0)
             # 80% - 20% falling edges (blue dots)
-            plt.plot(time[list(fall[:, 0])], points[list(fall[:, 0])], 'bo')
-            plt.plot(time[list(fall[:, 1])], points[list(fall[:, 1])], 'bo')
+            plt.plot(time[list(fall[:, 0])], points[list(fall[:, 0])], 'bo', markersize=9.5)
+            plt.plot(time[list(fall[:, 1])], points[list(fall[:, 1])], 'bo', markersize=9.5)
+            plt.plot(time[list(fall_half)], points[list(fall_half)], 'bo', markersize=9.5)
             # Actual inverter curve
             plt.plot(time, points, label='Inv %s' % i)
         
+    plt.xlabel('Time (s x 10^-9)')
+    plt.ylabel('Voltage (V)')
+    plt.title('Oscillator trace outputs')
+    
     # If filename is input to save to...
     if saveJson:
         # Convert filename to string just incase
@@ -165,11 +177,12 @@ def print_times(records):
         :records: - resulting dictionary from riseFall_times function
     """
     for net in list(records):
-        print('Net:', net)
+        print('\nNet:', net)
         print('Rise times:', records[net]['rise_ts'])
         print('Fall times:', records[net]['fall_ts'])
-        print('Rise propogation times:', records[net]['rise_prop_ts'])
-        print('Fall propogation times:', records[net]['fall_prop_ts'])
+        if not net == INPUT_COL:
+            print('Rise propogation times:', records[net]['rise_prop_ts'])
+            print('Fall propogation times:', records[net]['fall_prop_ts'])
     
 if __name__ == '__main__':
     osc_data = pd.read_csv(OSC_DATA)
@@ -179,11 +192,13 @@ if __name__ == '__main__':
     # For outputting plots, True or 1 to turn on and False or 0 to turn off
     PLOTS_ON = 0
     JSON_OUTPUT = 'lab3_records.json'
-    JSON_OUTPUT = False
+    #JSON_OUTPUT = False
     
-    if PLOTS_ON and False:
+    if PLOTS_ON:
         allPlots(osc_data)
+        
+    #records = riseFall_times(osc_data, showPlot=PLOTS_ON, saveJson=JSON_OUTPUT)
     
-    records = riseFall_times(osc_data, showPlot=PLOTS_ON, saveJson='lab3_records.json')
+    #print_times(records)
     
-    print_times(records)
+    #lp.load_record(JSON_OUTPUT)
