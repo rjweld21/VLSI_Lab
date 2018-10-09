@@ -11,9 +11,9 @@
         "rise_ts": "[1.293e-10 1.360e-10]",
         "fall_ts": "[9.2e-11 9.1e-11]",
         "initial_input": "True",
-        "osc_rise_prop_ts": "[]",
-        "osc_fall_prop_ts": "[-1.1541e-09 -1.1530e-09]",
-        "prop_ts": "-1.15355e-09"
+        "osc_rise_prop_ts": "[1.186e-09]",
+        "osc_fall_prop_ts": "[1.1541e-09 1.1530e-09]",
+        "prop_ts": "1.1643666666666667e-09"
     },
     "net2 (V)": {
         "top": "[12216 22467 35614]",
@@ -174,5 +174,9 @@
         "rise_prop_ts": "[1.23e-10 1.23e-10]",
         "fall_prop_ts": "[9.e-11 9.e-11]",
         "prop_ts": "1.0649999999999992e-10"
+    },
+    "all_invs": {
+        "mean_rise_prop_ts": "4.570000000000001e-10",
+        "mean_fall_prop_ts": "5.1546e-10"
     }
 }

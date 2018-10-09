@@ -58,6 +58,19 @@ def remove_unpaired(data):
 
     return data
     
+def clear_range(top_ind, bot_ind, half_ind):
+    """
+        Function to fix bug where np.argwhere returns two indicies
+            where there should only be one
+    """
+    eval = [top_ind, bot_ind, half_ind]
+    for i in range(len(eval)):
+        for j in eval[i]:
+            if j-1 in eval[i]:
+                eval[i] = np.delete(eval[i], np.where(eval[i]==j))
+                
+    return eval
+    
 def get_risefall_inds(data):
     """
         Function to get rise and fall point indicies from input data
@@ -137,16 +150,20 @@ def osc_prop_time(input_node, time):
         :fall_prop_ts: - propagation fall time for node
         :prop_ts: - average propagation time
     """
+    # Transfer data from input dictionary to temp so input is not changed by reference
     node = {}; node.update(input_node)
     
     rise_prop_ts = []
     fall_prop_ts = []
     
+    # Iterate through falling edges
     for i, fallIndex in enumerate(node['fall_half']):
-        fall_prop_ts.append(time[node['rise_half'][i]] - time[fallIndex])
+        # Subtract first falling edge time from first rising edge time
+        fall_prop_ts.append(time[fallIndex] - time[node['rise_half'][i]])
         
         try:
-            fall_prop_ts.append(time[node['fall_half'][i+1]] - time[riseIndex])
+            # Try to subtract next rising edge time by current falling edge time
+            rise_prop_ts.append(time[node['rise_half'][i+1]] - time[fallIndex])
         except:
             pass
             
@@ -235,25 +252,3 @@ def arrays_to_strings(records):
             records[k] = str(records[k]).replace('\n', ',')
                 
     return records
-    
-def load_record(filepath):
-    """
-        STATUS: NOT FINISHED
-        
-        Function to load data into original data types from records JSON output
-        
-        INPUT
-        :filepath: - Filepath to record file to load
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError('Input path %s does not exists' % filepath)
-        
-    data = json.load(open(filepath, 'r'))
-    for key1 in list(data):
-        for key2 in list(data[key1]):
-            try:
-                data[key1][key2] = np.fromstring(data[key1][key2], sep='')
-            except Exception as e:
-                print(type(e), e)
-                
-    print(data)

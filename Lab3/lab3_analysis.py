@@ -4,8 +4,6 @@ import numpy as np
 import lab3_processing as lp
 import json, os
 
-from scipy import signal
-
 # Data filename, time points column name, input wave column name
 OSC_DATA = os.path.join('data', 'oscillator-3.csv')
 TIME_COL = 'time (s)'
@@ -23,18 +21,27 @@ def allPlots(df):
     x = range(df.shape[0])
     
     # Scale through output trace columns and plot each one
-    for net in list(df):
+    for i, net in enumerate(list(df)):
         if net == TIME_COL:
             continue
         # Get output trace series, convert to list
         points = df[net].tolist()
-        # Put on plot
-        plt.plot(x, points)
+        
+        trace = '--'
+        if i%2==0:
+            trace='-'
+        # Put on plot  
+        plt.plot(x, points, trace, label=net)
 
+    plt.title('Oscillator Simulated Results')
+    plt.xlabel('Time (S x 10e-9)')
+    plt.ylabel('Voltage (V)')
+    plt.legend()
+    
     # Show plot
     plt.show()
     
-def riseFall_times(df, showPlot=1, saveJson=False):
+def riseFall_times(df, showPlot=1, saveJson=False, skipPlots=True, inv_eval=0):
     """
         Function to find rise and fall indicies of x-axis for output traces
         
@@ -42,6 +49,7 @@ def riseFall_times(df, showPlot=1, saveJson=False):
         :df: - dataframe of points for inverter net traces
         :showPlot: - bool for whether plots should be shown of traces
         :saveJson: - string of filename to save records dict to or False to not save
+        :skipPlots: - bool of whether to skip some plot outputs
         
         OUTPUT
         :records: - dict of processed data
@@ -52,7 +60,6 @@ def riseFall_times(df, showPlot=1, saveJson=False):
     
     # Create records variable
     records = {}
-    
     for i, net in enumerate(list(df)):
         # Create records entry for net
         records[net] = {'top': [], 'bot': [], 'half': []}
@@ -71,6 +78,8 @@ def riseFall_times(df, showPlot=1, saveJson=False):
         t_ind = np.argwhere(np.diff(np.sign(points - top))).flatten()
         b_ind = np.argwhere(np.diff(np.sign(points - bot))).flatten()
         h_ind = np.argwhere(np.diff(np.sign(points - half))).flatten()
+        
+        t_ind, b_ind, h_ind = lp.clear_range(t_ind, b_ind, h_ind)
         
         # Record intersections indicies
         records[net]['top'] = t_ind
@@ -110,18 +119,27 @@ def riseFall_times(df, showPlot=1, saveJson=False):
             
         elif net == INPUT_COL:
             records[net]['initial_input'] = 'True'
-            rise_prop_ts, fall_prop_ts, prop_ts = lp.osc_prop_time(records[net],
-                                                                    time)
-            records[net]['osc_rise_prop_ts'] = rise_prop_ts
-            records[net]['osc_fall_prop_ts'] = fall_prop_ts
-            records[net]['prop_ts'] = prop_ts
             
+            try:
+                if not inv_eval:
+                    rise_prop_ts, fall_prop_ts, prop_ts = lp.osc_prop_time(records[net],
+                                                                            time)
+                    records[net]['osc_rise_prop_ts'] = rise_prop_ts
+                    records[net]['osc_fall_prop_ts'] = fall_prop_ts
+                    records[net]['prop_ts'] = prop_ts
+            except Exception as e:
+                print('Error hit... If evaluating for single inverter this is fine.')
+                inv_eval = 1
+                del records[net]['osc_rise_prop_ts']
+                del records[net]['osc_fall_prop_ts']
+                del records[net]['prop_ts']
+                
         else:
             raise Exception('No input recorded to reference, INPUT_COL ' + 
                             'must be same as first for loop iteration net')
 
         # Skip any iterations where i%3!=0
-        if not i % 4 == 0:
+        if not i % 4 == 0 and skipPlots:
             continue
             
         if showPlot:
@@ -147,6 +165,21 @@ def riseFall_times(df, showPlot=1, saveJson=False):
             # Actual inverter curve
             plt.plot(time, points, label='Inv %s' % i)
         
+    if len(records) > 4:
+        mean_rise = []
+        mean_fall = []
+        for net in list(records):
+            rise_prop_ts = records[net].get('rise_prop_ts', 'cannot compute')
+            fall_prop_ts = records[net].get('fall_prop_ts', 'cannot compute')
+            
+            if not 'cannot compute' in str(rise_prop_ts).lower():
+                mean_rise.extend(list(rise_prop_ts))
+                mean_fall.extend(list(fall_prop_ts))
+                
+        records['all_invs'] = {}
+        records['all_invs']['mean_rise_prop_ts'] = np.mean(mean_rise)
+        records['all_invs']['mean_fall_prop_ts'] = np.mean(mean_fall)
+                
     plt.xlabel('Time (s x 10^-9)')
     plt.ylabel('Voltage (V)')
     plt.title('Oscillator trace outputs')
@@ -195,15 +228,14 @@ if __name__ == '__main__':
     print('Columns:', list(osc_data))
     
     # For outputting plots, True or 1 to turn on and False or 0 to turn off
-    PLOTS_ON = 0
-    JSON_OUTPUT = os.path.join('data', 'lab3_records.json')
-    #JSON_OUTPUT = False
+    PLOTS_ON = 1
+    JSON_OUTPUT = os.path.join('data', 'lab3_osc_records.json')
     
     if PLOTS_ON:
         allPlots(osc_data)
         
-    records = riseFall_times(osc_data, showPlot=PLOTS_ON, saveJson=JSON_OUTPUT)
+    records = riseFall_times(osc_data, showPlot=PLOTS_ON, 
+                            saveJson=JSON_OUTPUT, skipPlots=not PLOTS_ON,
+                            inv_eval=0)
     
     #print_times(records)
-    
-    #lp.load_record(JSON_OUTPUT)
