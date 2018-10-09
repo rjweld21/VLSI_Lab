@@ -2,7 +2,7 @@
 ### Author: R.J. Weld
 ### Institution: Rowan University
 ### Professor: Dr. Shin
-### Lab Instructor: Adam
+### Lab Instructor: Adam Fifth
 
 Scope
 -----

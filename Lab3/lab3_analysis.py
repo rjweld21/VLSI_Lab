@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import lab3_processing as lp
-import json
+import json, os
 
 from scipy import signal
 
 # Data filename, time points column name, input wave column name
-OSC_DATA = 'oscillator-3.csv'
+OSC_DATA = os.path.join('data', 'oscillator-3.csv')
 TIME_COL = 'time (s)'
 INPUT_COL = 'net1 (V)'
 TOP_TRIGGER = 0.8 # Calculate rise/fall times 20%-80%
@@ -186,8 +186,8 @@ def print_times(records):
         print('Rise times:', records[net]['rise_ts'])
         print('Fall times:', records[net]['fall_ts'])
         if not net == INPUT_COL:
-            print('Rise propogation times:', records[net]['rise_prop_ts'])
-            print('Fall propogation times:', records[net]['fall_prop_ts'])
+            print('Rise propagation times:', records[net]['rise_prop_ts'])
+            print('Fall propagation times:', records[net]['fall_prop_ts'])
     
 if __name__ == '__main__':
     osc_data = pd.read_csv(OSC_DATA)
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     
     # For outputting plots, True or 1 to turn on and False or 0 to turn off
     PLOTS_ON = 0
-    JSON_OUTPUT = 'lab3_records.json'
+    JSON_OUTPUT = os.path.join('data', 'lab3_records.json')
     #JSON_OUTPUT = False
     
     if PLOTS_ON:

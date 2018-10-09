@@ -3,7 +3,7 @@
 - Institution: Rowan University
 - Course: VLSI
 - Professor: Dr. Shin
-- Lab Instructor: Adam
+- Lab Instructor: Adam Fifth
 
 Setup
 -----

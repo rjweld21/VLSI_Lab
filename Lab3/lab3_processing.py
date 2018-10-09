@@ -124,6 +124,19 @@ def calc_riseFall_times(index_dict, time):
     return rise_ts, fall_ts
     
 def osc_prop_time(input_node, time):
+    """
+        Function to calculate rise and fall propagation times of specified wave
+            in oscillator
+            
+        INPUTS
+        :input_node: - current curve to evaluate against itself curve
+        :time: - timescale to be referenced for time differences
+        
+        OUTPUTS
+        :rise_prop_ts: - propagation rise time for node
+        :fall_prop_ts: - propagation fall time for node
+        :prop_ts: - average propagation time
+    """
     node = {}; node.update(input_node)
     
     rise_prop_ts = []
@@ -137,14 +150,15 @@ def osc_prop_time(input_node, time):
         except:
             pass
             
-    # Get averate propogation delay
+    # Get averate propagation delay
     prop_ts = np.mean(list(rise_prop_ts) + list(fall_prop_ts))
     
     return np.array(rise_prop_ts), np.array(fall_prop_ts), prop_ts
     
 def calc_prop_times(node, source, time):
     """
-        Function to calculate rise and fall propogation times
+        Function to calculate rise and fall propagation times of specified input
+            node against all other node waveforms
         
         INPUTS
         :node: - current curve to evaluate against input curve
@@ -152,8 +166,8 @@ def calc_prop_times(node, source, time):
         :time: - timescale to be referenced for time differences
         
         OUTPUTS
-        :rise_prop_ts: - propogation rise time for node
-        :fall_prop_ts: - propogation fall time for node
+        :rise_prop_ts: - propagation rise time for node
+        :fall_prop_ts: - propagation fall time for node
     """
     node1 = {}; node1.update(node)
     source1 = {}; source1.update(source)
@@ -174,7 +188,7 @@ def calc_prop_times(node, source, time):
     if node1['fall_half'][0] < source1['rise_half'][0]:
         node1['fall_half'] = node1['fall_half'][1:]
         
-    # Get propogation delay for rising by iterating through current trace
+    # Get propagation delay for rising by iterating through current trace
         # 50% points on rising edges. Current trace is used because this
         # trace will always have as many or less points than the input
         # trace so there won't be any index errors when indexing the
@@ -183,13 +197,13 @@ def calc_prop_times(node, source, time):
     for i, riseIndex in enumerate(node1['rise_half']):
         rise_prop_ts.append(time[riseIndex] - time[source1['fall_half'][i]])
         
-    # Get propogation delay for falling with same but opposite methodology
+    # Get propagation delay for falling with same but opposite methodology
         # as used for rise prop.
     fall_prop_ts = []
     for i, fallIndex in enumerate(node1['fall_half']):
         fall_prop_ts.append(time[fallIndex] - time[source1['rise_half'][i]])
         
-    # Get averate propogation delay
+    # Get averate propagation delay
     prop_ts = np.mean(list(rise_prop_ts) + list(fall_prop_ts))
     
     return np.array(rise_prop_ts), np.array(fall_prop_ts), prop_ts
