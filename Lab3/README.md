@@ -1,14 +1,14 @@
 # Tutorial 3 - Symbol Editing and Transient Simulations
-Repo Author: R.J. Weld
-
-Institution: Rowan University
-Course: VLSI
-Professor: Dr. Shin
-Lab Instructor: Adam
+- Repo Author: R.J. Weld
+- Institution: Rowan University
+- Course: VLSI
+- Professor: Dr. Shin
+- Lab Instructor: Adam
 
 Setup
 -----
 1. Have Python 3.5.x installed
+    - Probably works with other 3.x versions but not tested
 2. Within lab 3 folder in terminal run...
 ```bash
 pip3 install -r requirements.txt
@@ -16,7 +16,7 @@ pip3 install -r requirements.txt
 
 Scope
 -----
-    Oscillator simulation output points, in CSV file, are input to *lab3_analysis.py* to
+Oscillator simulation output points, in CSV file, are input to *lab3_analysis.py* to
 calculate the rise time, fall time and propogation delays of the oscillator. Plots are then
 output for some of the traces and all data is saved in JSON format. 
 

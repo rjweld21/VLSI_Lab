@@ -110,6 +110,11 @@ def riseFall_times(df, showPlot=1, saveJson=False):
             
         elif net == INPUT_COL:
             records[net]['initial_input'] = 'True'
+            rise_prop_ts, fall_prop_ts, prop_ts = lp.osc_prop_time(records[net],
+                                                                    time)
+            records[net]['osc_rise_prop_ts'] = rise_prop_ts
+            records[net]['osc_fall_prop_ts'] = fall_prop_ts
+            records[net]['prop_ts'] = prop_ts
             
         else:
             raise Exception('No input recorded to reference, INPUT_COL ' + 
@@ -197,7 +202,7 @@ if __name__ == '__main__':
     if PLOTS_ON:
         allPlots(osc_data)
         
-    #records = riseFall_times(osc_data, showPlot=PLOTS_ON, saveJson=JSON_OUTPUT)
+    records = riseFall_times(osc_data, showPlot=PLOTS_ON, saveJson=JSON_OUTPUT)
     
     #print_times(records)
     

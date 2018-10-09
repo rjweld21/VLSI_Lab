@@ -123,6 +123,25 @@ def calc_riseFall_times(index_dict, time):
 
     return rise_ts, fall_ts
     
+def osc_prop_time(input_node, time):
+    node = {}; node.update(input_node)
+    
+    rise_prop_ts = []
+    fall_prop_ts = []
+    
+    for i, fallIndex in enumerate(node['fall_half']):
+        fall_prop_ts.append(time[node['rise_half'][i]] - time[fallIndex])
+        
+        try:
+            fall_prop_ts.append(time[node['fall_half'][i+1]] - time[riseIndex])
+        except:
+            pass
+            
+    # Get averate propogation delay
+    prop_ts = np.mean(list(rise_prop_ts) + list(fall_prop_ts))
+    
+    return np.array(rise_prop_ts), np.array(fall_prop_ts), prop_ts
+    
 def calc_prop_times(node, source, time):
     """
         Function to calculate rise and fall propogation times
@@ -136,8 +155,6 @@ def calc_prop_times(node, source, time):
         :rise_prop_ts: - propogation rise time for node
         :fall_prop_ts: - propogation fall time for node
     """
-    rise_prop = []
-    fall_prop = []
     node1 = {}; node1.update(node)
     source1 = {}; source1.update(source)
     
@@ -164,13 +181,13 @@ def calc_prop_times(node, source, time):
         # input trace falling edge points
     rise_prop_ts = []
     for i, riseIndex in enumerate(node1['rise_half']):
-        rise_prop_ts.append(time[riseIndex] - source1['fall_half'][i])
+        rise_prop_ts.append(time[riseIndex] - time[source1['fall_half'][i]])
         
     # Get propogation delay for falling with same but opposite methodology
         # as used for rise prop.
     fall_prop_ts = []
     for i, fallIndex in enumerate(node1['fall_half']):
-        fall_prop_ts.append(time[fallIndex] - source1['rise_half'][i])
+        fall_prop_ts.append(time[fallIndex] - time[source1['rise_half'][i]])
         
     # Get averate propogation delay
     prop_ts = np.mean(list(rise_prop_ts) + list(fall_prop_ts))

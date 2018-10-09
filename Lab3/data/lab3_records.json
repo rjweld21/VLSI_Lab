@@ -10,7 +10,10 @@
         "fall_half": "[12295 35693]",
         "rise_ts": "[1.293e-10 1.360e-10]",
         "fall_ts": "[9.2e-11 9.1e-11]",
-        "initial_input": "True"
+        "initial_input": "True",
+        "osc_rise_prop_ts": "[]",
+        "osc_fall_prop_ts": "[-1.1541e-09 -1.1530e-09]",
+        "prop_ts": "-1.15355e-09"
     },
     "net2 (V)": {
         "top": "[12216 22467 35614]",
@@ -40,9 +43,9 @@
         "rise_ts": "[1.36e-10 1.36e-10]",
         "fall_ts": "[9.14e-11 9.20e-11]",
         "initial_input": "False, see net1 (V)",
-        "rise_prop_ts": "[-12295. -35693.]",
-        "fall_prop_ts": "[  -759. -24159.]",
-        "prop_ts": "-18226.499999997857"
+        "rise_prop_ts": "[3.35e-10 3.36e-10]",
+        "fall_prop_ts": "[3.028e-10 3.030e-10]",
+        "prop_ts": "3.1920000000000005e-10"
     },
     "net4 (V)": {
         "top": "[ 5835 16086 29233 39484]",
@@ -88,9 +91,9 @@
         "rise_ts": "[1.36e-10]",
         "fall_ts": "[9.14e-11 9.10e-11]",
         "initial_input": "False, see net1 (V)",
-        "rise_prop_ts": "[-12295.]",
-        "fall_prop_ts": "[  -759. -24159.]",
-        "prop_ts": "-12404.333333331568"
+        "rise_prop_ts": "[5.48e-10]",
+        "fall_prop_ts": "[5.155e-10 5.150e-10]",
+        "prop_ts": "5.261666666666669e-10"
     },
     "net7 (V)": {
         "top": "[ 9705 22852 33103]",
@@ -104,9 +107,9 @@
         "rise_ts": "[1.36e-10]",
         "fall_ts": "[9.15e-11 9.20e-11]",
         "initial_input": "False, see net1 (V)",
-        "rise_prop_ts": "[-12295.]",
-        "fall_prop_ts": "[  -759. -24159.]",
-        "prop_ts": "-12404.33333333114"
+        "rise_prop_ts": "[9.73e-10]",
+        "fall_prop_ts": "[9.411e-10 9.410e-10]",
+        "prop_ts": "9.517000000000001e-10"
     },
     "net8 (V)": {
         "top": "[10089 20340 33487]",
@@ -136,9 +139,9 @@
         "rise_ts": "[1.37e-10]",
         "fall_ts": "[9.14e-11 9.10e-11]",
         "initial_input": "False, see net1 (V)",
-        "rise_prop_ts": "[-12295.]",
-        "fall_prop_ts": "[  -759. -24159.]",
-        "prop_ts": "-12404.333333331355"
+        "rise_prop_ts": "[7.61e-10]",
+        "fall_prop_ts": "[7.282e-10 7.280e-10]",
+        "prop_ts": "7.390666666666667e-10"
     },
     "net10 (V)": {
         "top": "[ 3708 13959 27106 37357]",
@@ -168,8 +171,8 @@
         "rise_ts": "[1.37e-10 1.37e-10]",
         "fall_ts": "[9.1e-11 9.2e-11]",
         "initial_input": "False, see net1 (V)",
-        "rise_prop_ts": "[-12295. -35693.]",
-        "fall_prop_ts": "[  -759. -24159.]",
-        "prop_ts": "-18226.499999998072"
+        "rise_prop_ts": "[1.23e-10 1.23e-10]",
+        "fall_prop_ts": "[9.e-11 9.e-11]",
+        "prop_ts": "1.0649999999999992e-10"
     }
 }
