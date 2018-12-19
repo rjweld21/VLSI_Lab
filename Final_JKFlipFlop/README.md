@@ -3,6 +3,12 @@
 
 ### This folder is for analysis/plotting/storage of project simulations and work.
 
+## File Purposes
+1. cinCalcs.py
+    - Python 3 script for simulating parameter changes in a circuit with feedback logic
+2. plotdata.py
+    - Python 3 script for plotting output CSV data from `data` directory
+    
 ## Setup
 1. Files used for analysis and plotting are written in Python 3. This programming 
 language should be downloaded and installed along with its package manager, 
