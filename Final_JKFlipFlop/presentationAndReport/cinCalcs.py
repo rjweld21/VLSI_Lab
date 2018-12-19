@@ -29,7 +29,7 @@ if __name__ == '__main__':
     NUM_STAGES = 4
     ALL_CIN = np.zeros((NUM_ITER, NUM_STAGES))
     CIN = [8, 5, 4, 5]
-    g_vals = [5/3, 1.721, 4/3, 1.721]
+    g_vals = [5/3, 1.4367, 4/3, 1.4367]
     
     G, H, B, F, b, f = get_params(CIN, NUM_STAGES, g_vals)
     
@@ -48,7 +48,7 @@ if __name__ == '__main__':
             
         print('ITERATION %s: ' % (i+1), 
                 'G=',G, 
-                'G=',H, 
+                'H=',H, 
                 'B=',B, 
                 'F=',F, 
                 'b=',b, 
@@ -56,18 +56,19 @@ if __name__ == '__main__':
         G, H, B, F, b, f = get_params(CIN, NUM_STAGES, g_vals)
         ALL_CIN[i] = np.array(CIN)
         
-    print(ALL_CIN)
+    print('C_in VALUES BY ITERATION:\n', ALL_CIN)
     l = ['STAGE %s' % (i+1) for i in range(NUM_STAGES)]
     CIN = np.array(round_list(CIN))
     PMOS = [CIN[0]*(2/5), CIN[1]*(2/5),
             CIN[2]*(2/4), CIN[3]*(2/5)]
-    print(PMOS)
+    print('\nPMOS K RATIO: \n', PMOS)
     NMOS = [CIN[0]*(3/5), CIN[1]*(3/5),
             CIN[2]*(2/4), CIN[3]*(3/5)]
-    print(NMOS)
-    print(b)
+    print('\nNMOS K RATIOS: \n', NMOS)
+    print('\nFINAL b VALUES BY STAGE: \n', b)
     plt.plot(ALL_CIN)
     plt.legend(l)
     plt.xlabel('Iteration')
     plt.ylabel('C_in Value')
+    plt.title('C_in Value Stabilization')
     plt.show()

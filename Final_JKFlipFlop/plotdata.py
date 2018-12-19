@@ -67,8 +67,10 @@ def plot_data(data, separate=False, savename=False, clockOverlayCol=False,
         del data[clockOverlayCol]
         
     if separate:
-        global fig, halfs, TOP_TRIGGER
-        halfs = {}
+        global fig, halfs_data, halfs_clock, TOP_TRIGGER
+        halfs_data = {}
+        halfs_clock = {}
+        
         fig, axes = plt.subplots(nrows=data.shape[1], sharex=True)
         
         for i, col in enumerate(sorted(set(list(data)))):
@@ -77,38 +79,48 @@ def plot_data(data, separate=False, savename=False, clockOverlayCol=False,
             for r in replace_on_ylabel:
                 ylabel_text = ylabel_text.replace(str(r), '')
                 
+            if i == 0:
+                axes[i].set_title('Simulation Waveforms')
             axes[i].set_ylabel(ylabel_text)
             axes[i].plot(data[col])
             axes[i].spines['top'].set_visible(False)
             axes[i].spines['right'].set_visible(False)
             
             if clockOverlayCol:
-                axes[i].plot(clk, linestyle='--')
+                axes[i].plot(clk, linestyle='--') # marker='.')
             if i == len(list(data))-1:
-                axes[i].set_xlabel('Samples (1 Sample = 100 fs)')
+                axes[i].set_xlabel('Samples (1 Sample = 1 ps)')
             
             half = np.array([TOP_TRIGGER * HALF_TRIGGER]*len(data[col]))
             h_ind = np.argwhere(np.diff(np.sign(data[col] - half))).flatten()
-            halfs[axes[i]] = []
+            h_clk = np.argwhere(np.diff(np.sign(clk - half))).flatten()
+            halfs_data[axes[i]] = []
+            halfs_clock[axes[i]] = []
             for j, val in enumerate(h_ind):
                 if not j == len(h_ind)-1:
                     if abs(val - h_ind[j+1]) > 10:
-                        halfs[axes[i]].append(val)
+                        halfs_data[axes[i]].append(val)
+                        halfs_clock[axes[i]].append(h_clk[j])
                 else:
-                    halfs[axes[i]].append(val)
+                    halfs_data[axes[i]].append(val)
+                    halfs_clock[axes[i]].append(h_clk[j])
             
+        
         plt.subplots_adjust(hspace=0.2)
     else:
         plt.plot(data.T)
         
         if clockOverlayCol:
                 plt.plot(clk, linestyle='--')
+                
+        
         
     if savename:
         outfile = os.path.join(PLOT_DIR, savename + '.png')
         plt.savefig(outfile)
         
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
+    plt.xlim([0, 50000])
     plt.show()
     
 def onclick(event):
@@ -118,7 +130,8 @@ def onclick(event):
            event.x, event.y, event.xdata, event.ydata, event.inaxes))
     """
     # Gets closest 50% point
-    xdata = getClosest(event.xdata, halfs[event.inaxes])
+    xdata = getClosest(event.xdata, halfs_data[event.inaxes], halfs_clock[event.inaxes])
+    xdata = event.xdata
     delayPoints['x'].append(xdata)
     
     # If 2 plots have already been plotted and new click comes in, delete previous point
@@ -135,10 +148,15 @@ def onclick(event):
     fig.canvas.draw()
     fig.canvas.flush_events() #Put on all points
     
-def getClosest(xpoint, allHalfs):
+def getClosest(xpoint, data_halfs, clk_halfs):
     # Gets abs of difference, smallest value is closest to chosen point
-    data = [abs(xpoint - val) for val in allHalfs]
-    data = allHalfs[data.index(min(data))]
+    data = [abs(xpoint - val) for val in data_halfs]
+    clk = [abs(xpoint - val) for val in clk_halfs]
+    
+    if min(data) > min(clk):
+        data = clk_halfs[clk.index(min(clk))]
+    else:
+        data = data_halfs[data.index(min(data))]
     
     return data
     
